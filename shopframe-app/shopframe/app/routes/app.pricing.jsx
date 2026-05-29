@@ -1,4 +1,4 @@
-  import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
+import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -43,7 +43,7 @@ export const action = async ({ request }) => {
     onFailure: async () => billing.request({
       plan: plan,
       isTest: true,
-      returnUrl: `https://${session.shop}/admin/apps/shopframe/app/pricing`,
+      returnUrl: `${process.env.SHOPIFY_APP_URL}/app/pricing`,
     }),
   });
 

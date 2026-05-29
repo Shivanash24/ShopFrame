@@ -5,12 +5,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+// Prisma Postgres datasource (db.prisma.io).
+// DATABASE_URL  → postgres:// connection string (runtime queries)
+// DIRECT_URL    → same postgres:// URL (prisma migrate — Prisma Postgres has built-in pooling)
+// Set both vars in Vercel's Environment Variables dashboard.
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Session {

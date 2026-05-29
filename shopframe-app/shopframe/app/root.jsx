@@ -21,22 +21,35 @@ export default function App() {
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                // Patch EventTarget prototype for generic DOM elements
-                var originalAddEventListener = EventTarget.prototype.addEventListener;
-                EventTarget.prototype.addEventListener = function(type, listener, options) {
-                  if (type === 'unload') {
-                    type = 'pagehide';
+                // ─── Iframe escape: break out of chrome-error:// or unknown origins ───
+                // When Shopify loads this embedded app, it is inside an iframe whose
+                // parent is admin.shopify.com. If the tunnel is down or the page fails
+                // to load, Chrome shows chrome-error://chromewebdata/ as the parent,
+                // which triggers a cross-origin block on any subsequent navigation.
+                // This snippet detects that state and performs a full top-level redirect
+                // to the auth entry-point so the user gets a proper login/install flow.
+                try {
+                  if (window.top !== window.self) {
+                    // Try to access the parent href — will throw if cross-origin
+                    var parentHref = window.top.location.href;
                   }
-                  return originalAddEventListener.call(this, type, listener, options);
+                } catch (e) {
+                  // Cross-origin parent detected (e.g. chrome-error://)
+                  // Redirect the top frame to the Shopify app auth URL.
+                  var authUrl = '/auth/login' + window.location.search;
+                  window.top.location.href = authUrl;
+                }
+
+                // ─── Patch 'unload' event → 'pagehide' for Shopify App Bridge ────────
+                // App Bridge registers 'unload' listeners which are deprecated in
+                // modern browsers and cause console warnings. Patch them globally.
+                var _origETP = EventTarget.prototype.addEventListener;
+                EventTarget.prototype.addEventListener = function(type, listener, opts) {
+                  return _origETP.call(this, type === 'unload' ? 'pagehide' : type, listener, opts);
                 };
-                
-                // Patch window directly in case scripts cache the reference
-                var originalWindowAddEventListener = window.addEventListener;
-                window.addEventListener = function(type, listener, options) {
-                  if (type === 'unload') {
-                    type = 'pagehide';
-                  }
-                  return originalWindowAddEventListener.call(this, type, listener, options);
+                var _origWin = window.addEventListener;
+                window.addEventListener = function(type, listener, opts) {
+                  return _origWin.call(this, type === 'unload' ? 'pagehide' : type, listener, opts);
                 };
               })();
             `,

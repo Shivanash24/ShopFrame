@@ -38,9 +38,13 @@ if (host === "localhost") {
   };
 }
 
+// Allow all hosts when a tunnel URL is set so the Cloudflare/ngrok
+// tunnel hostname is not rejected by Vite's host-check middleware.
+const allowedHosts = host === "localhost" ? [host] : "all";
+
 export default defineConfig({
   server: {
-    allowedHosts: [host],
+    allowedHosts: allowedHosts,
     cors: {
       preflightContinue: true,
     },
