@@ -51,6 +51,43 @@ export default function App() {
                 window.addEventListener = function(type, listener, opts) {
                   return _origWin.call(this, type === 'unload' ? 'pagehide' : type, listener, opts);
                 };
+
+                // ─── Graceful WebSocket Error Handling (Vite HMR & CLI Extensions) ───
+                // Cloudflare tunnels frequently drop idle WebSocket connections, causing
+                // noisy console errors from Vite or Shopify Dev Console. This intercepts
+                // and handles them gracefully.
+                var _origWebSocket = window.WebSocket;
+                window.WebSocket = function(url, protocols) {
+                  var ws = protocols ? new _origWebSocket(url, protocols) : new _origWebSocket(url);
+                  
+                  // Add specific checks for the connection state
+                  ws.addEventListener("open", function() {
+                    if (url.includes('extensions') || url.includes('hmr')) {
+                      console.log("[Dev] WebSocket connected gracefully to: " + url);
+                    }
+                  });
+
+                  ws.addEventListener("close", function(event) {
+                    if (url.includes('extensions') || url.includes('hmr')) {
+                      console.warn("[Dev] WebSocket closed gracefully. Tunnel may be idle.");
+                    }
+                  });
+
+                  ws.addEventListener("error", function(err) {
+                    if (url.includes('extensions') || url.includes('trycloudflare.com')) {
+                      console.warn("[Dev] WebSocket connection failed. If the tunnel is active, this will automatically retry.");
+                      // Prevent the unhandled error from blowing up the console if possible
+                      err.preventDefault && err.preventDefault();
+                    }
+                  });
+
+                  return ws;
+                };
+                window.WebSocket.prototype = _origWebSocket.prototype;
+                window.WebSocket.CONNECTING = _origWebSocket.CONNECTING;
+                window.WebSocket.OPEN = _origWebSocket.OPEN;
+                window.WebSocket.CLOSING = _origWebSocket.CLOSING;
+                window.WebSocket.CLOSED = _origWebSocket.CLOSED;
               })();
             `,
           }}
