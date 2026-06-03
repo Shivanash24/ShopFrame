@@ -12,8 +12,8 @@
     "env": "shopify app env",
     "start": "remix-serve ./build/server/index.js",
     "docker-start": "npm run setup && npm run start",
-    "setup": "prisma generate && prisma migrate deploy",
-    "migrate": "prisma migrate dev",
+    "setup": "prisma generate && prisma db push",
+    "db:push": "prisma db push",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
     "shopify": "shopify",
     "prisma": "prisma",
@@ -25,7 +25,7 @@
     "node": ">=20.19 <22 || >=22.12"
   },
   "dependencies": {
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.19.3",
     "@remix-run/dev": "^2.16.7",
     "@remix-run/fs-routes": "^2.16.7",
     "@remix-run/node": "^2.16.7",
@@ -38,7 +38,6 @@
     "@shopify/shopify-app-session-storage-prisma": "^9.0.0",
     "@vercel/remix": "^2.16.7",
     "isbot": "^5.1.0",
-    "prisma": "^6.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "vite-tsconfig-paths": "^5.0.1"
@@ -54,6 +53,7 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^10.0.1",
     "prettier": "^3.2.4",
+    "prisma": "^6.19.3",
     "typescript": "^5.2.2",
     "vite": "^6.2.2"
   },

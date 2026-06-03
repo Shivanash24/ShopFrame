@@ -5,18 +5,16 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Prisma Postgres datasource (db.prisma.io).
-// DATABASE_URL  → postgres:// connection string (runtime queries)
-// DIRECT_URL    → same postgres:// URL (prisma migrate — Prisma Postgres has built-in pooling)
-// Set both vars in Vercel's Environment Variables dashboard.
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
+// Session model — used by @shopify/shopify-app-session-storage-prisma.
+// The package stores/looks-up sessions by the `id` field which holds the
+// Shopify session-ID string.  We map it directly to MongoDB's `_id`.
 model Session {
-  id                  String    @id
+  id                  String    @id @map("_id")
   shop                String
   state               String
   isOnline            Boolean   @default(false)
@@ -36,7 +34,7 @@ model Session {
 }
 
 model Store {
-  id            String   @id @default(uuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   shop          String   @unique
   name          String?
   category      String?
@@ -49,7 +47,7 @@ model Store {
 }
 
 model Subscription {
-  id            String   @id @default(uuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   shop          String   @unique
   plan          String
   status        String
@@ -59,7 +57,7 @@ model Subscription {
 }
 
 model Template {
-  id            String   @id
+  id            String   @id @map("_id")
   name          String
   category      String
   tier          String
@@ -70,7 +68,7 @@ model Template {
 }
 
 model Customization {
-  id            String   @id @default(uuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   shop          String
   templateId    String
   sections      String
@@ -84,7 +82,7 @@ model Customization {
 }
 
 model MediaAsset {
-  id            String   @id @default(uuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   shop          String
   url           String
   fileName      String
