@@ -1,8 +1,6 @@
 {
   "buildCommand": "npm run vercel-build",
   "installCommand": "npm install",
-  "framework": "remix",
-  "outputDirectory": "build",
   "headers": [
     {
       "source": "/(.*)",
