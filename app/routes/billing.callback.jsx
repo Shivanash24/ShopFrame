@@ -4,15 +4,12 @@
  * Shopify redirects the merchant here after they approve or decline
  * a subscription on the Shopify payment approval page.
  *
- * Flow:
- *   1. billing.check() verifies whether the subscription is now ACTIVE on Shopify
- *   2. Save result to DB
- *   3. Redirect to pricing page with success/cancel query param
+ * Uses safeBillingCheck() so a 403 never crashes this route.
  */
 import { redirect } from "@remix-run/node";
-import { authenticate } from "../shopify.server";
+import { authenticate, PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM } from "../shopify.server";
+import { safeBillingCheck } from "../billing.server";
 import prisma from "../db.server";
-import { PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM } from "../shopify.server";
 
 const ALL_PLANS = [PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM];
 
@@ -20,14 +17,14 @@ export const loader = async ({ request }) => {
   const { billing, session } = await authenticate.admin(request);
 
   try {
-    // Ask Shopify whether any of our plans are now active for this shop
-    const billingCheck = await billing.check({
-      plans: ALL_PLANS,
-      isTest: true,
-    });
+    const billingCheck = await safeBillingCheck(billing, ALL_PLANS);
+
+    if (!billingCheck.available) {
+      // Billing API unavailable (Custom App) — can't verify, just redirect
+      return redirect("/app/pricing?billingStatus=error");
+    }
 
     if (billingCheck.hasActivePayment) {
-      // Find which plan is active
       const activePlan = billingCheck.appSubscriptions?.[0];
       const planName = activePlan?.name || null;
       const subscriptionId = activePlan?.id || null;
@@ -57,7 +54,13 @@ export const loader = async ({ request }) => {
       }
     }
 
-    // If no active payment found (merchant cancelled on Shopify page)
+    // Merchant cancelled on Shopify's approval page — revert PENDING
+    await prisma.subscription.upsert({
+      where: { shop: session.shop },
+      create: { shop: session.shop, plan: "FREE", status: "ACTIVE" },
+      update: { plan: "FREE", status: "ACTIVE", subscriptionId: null },
+    }).catch(() => {});
+
     return redirect("/app/pricing?billingStatus=cancelled");
   } catch (error) {
     console.error("Billing callback error:", error);
@@ -65,5 +68,5 @@ export const loader = async ({ request }) => {
   }
 };
 
-// Also handle POST (some Shopify redirect flows use POST)
+// Some Shopify redirect flows POST back to the return URL
 export const action = loader;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLoaderData, useNavigate, useSubmit, useActionData } from "@remix-run/react";
+import { redirect } from "@remix-run/node";
 import {
   Page,
   Text,
@@ -16,7 +17,7 @@ import {
   Collapsible,
 } from "@shopify/polaris";
 import { DragHandleIcon, ChevronDownIcon, ChevronUpIcon } from "@shopify/polaris-icons";
-import { authenticate } from "../shopify.server";
+import { authenticate, canAccessTier } from "../shopify.server";
 import prisma from "../db.server";
 import { templates } from "../data/templates";
 
@@ -46,11 +47,9 @@ export const loader = async ({ request }) => {
 
   const activePlan =
     subscription?.status === "ACTIVE" ? subscription?.plan : "FREE";
-  const { canAccessTier } = await import("../shopify.server");
 
   if (template.tier !== "FREE" && !canAccessTier(activePlan, template.tier)) {
     // Merchant doesn't have the required plan — redirect to pricing
-    const { redirect } = await import("@remix-run/node");
     return redirect(`/app/pricing?accessDenied=${template.tier}`);
   }
 

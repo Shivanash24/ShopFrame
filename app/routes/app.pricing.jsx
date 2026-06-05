@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { useLoaderData, useNavigate, useSubmit, useNavigation, useSearchParams } from "@remix-run/react";
+import {
+  useLoaderData,
+  useNavigate,
+  useSubmit,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import {
   Page,
   Text,
@@ -13,172 +19,177 @@ import {
   Banner,
   Spinner,
 } from "@shopify/polaris";
-import { authenticate, PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM, PLAN_LEVELS } from "../shopify.server";
+import {
+  authenticate,
+  PLAN_BASIC,
+  PLAN_PRO,
+  PLAN_PLATINUM,
+} from "../shopify.server";
+import {
+  safeBillingCheck,
+  safeBillingRequest,
+  safeBillingCancel,
+} from "../billing.server";
 import prisma from "../db.server";
 import { subscriptionPlans } from "../data/templates";
 
 const ALL_PAID_PLANS = [PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM];
+const PLAN_ORDER = ["FREE", PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM];
 
+// ─── Loader ────────────────────────────────────────────────────────────────
 export const loader = async ({ request }) => {
   const { billing, session } = await authenticate.admin(request);
 
   let subscription = null;
-  let billingCheckError = null;
+  let billingApiAvailable = true;
 
-  try {
-    // Always sync with Shopify first — check if there's a real active subscription
-    const billingCheck = await billing.check({
-      plans: ALL_PAID_PLANS,
-      isTest: true,
-    });
+  // Step 1: Try to sync with Shopify's real billing state
+  const billingCheck = await safeBillingCheck(billing, ALL_PAID_PLANS);
+  billingApiAvailable = billingCheck.available;
 
+  if (billingCheck.available) {
     if (billingCheck.hasActivePayment) {
-      // Shopify says subscription is active — trust it and sync DB
+      // Shopify confirms an active subscription — sync it to DB
       const activeSub = billingCheck.appSubscriptions?.[0];
       const planName = activeSub?.name;
 
       if (planName && ALL_PAID_PLANS.includes(planName)) {
-        subscription = await prisma.subscription.upsert({
-          where: { shop: session.shop },
-          create: {
-            shop: session.shop,
-            plan: planName,
-            status: "ACTIVE",
-            subscriptionId: activeSub?.id || null,
-            currentPeriodEnd: activeSub?.currentPeriodEnd
-              ? new Date(activeSub.currentPeriodEnd)
-              : null,
-          },
-          update: {
-            plan: planName,
-            status: "ACTIVE",
-            subscriptionId: activeSub?.id || null,
-            currentPeriodEnd: activeSub?.currentPeriodEnd
-              ? new Date(activeSub.currentPeriodEnd)
-              : null,
-          },
-        });
+        try {
+          subscription = await prisma.subscription.upsert({
+            where: { shop: session.shop },
+            create: {
+              shop: session.shop,
+              plan: planName,
+              status: "ACTIVE",
+              subscriptionId: activeSub?.id || null,
+              currentPeriodEnd: activeSub?.currentPeriodEnd
+                ? new Date(activeSub.currentPeriodEnd)
+                : null,
+            },
+            update: {
+              plan: planName,
+              status: "ACTIVE",
+              subscriptionId: activeSub?.id || null,
+              currentPeriodEnd: activeSub?.currentPeriodEnd
+                ? new Date(activeSub.currentPeriodEnd)
+                : null,
+            },
+          });
+        } catch (dbErr) {
+          console.error("DB sync error:", dbErr);
+        }
       }
     } else {
-      // Shopify says no active subscription — downgrade DB if it was previously set
-      const dbSub = await prisma.subscription.findUnique({
-        where: { shop: session.shop },
-      });
-
-      if (dbSub && dbSub.status === "ACTIVE" && dbSub.plan !== "FREE") {
-        // Subscription lapsed on Shopify side — mark as expired in DB
-        subscription = await prisma.subscription.update({
+      // Shopify says no active subscription — downgrade any paid DB record
+      try {
+        const dbSub = await prisma.subscription.findUnique({
           where: { shop: session.shop },
-          data: { plan: "FREE", status: "ACTIVE" },
         });
-      } else {
-        subscription = dbSub;
+        if (dbSub && dbSub.status === "ACTIVE" && dbSub.plan !== "FREE") {
+          subscription = await prisma.subscription.update({
+            where: { shop: session.shop },
+            data: { plan: "FREE", status: "ACTIVE", subscriptionId: null },
+          });
+        } else {
+          subscription = dbSub;
+        }
+      } catch (dbErr) {
+        console.error("DB downgrade check error:", dbErr);
       }
     }
-  } catch (error) {
-    // billing.check() can fail for Custom Apps (403). Fall back to DB only.
-    console.warn("billing.check() failed, falling back to DB:", error.message);
-    billingCheckError = true;
+  } else {
+    // Billing API unavailable (Custom App / 403) — trust the DB as source of truth
     try {
       subscription = await prisma.subscription.findUnique({
         where: { shop: session.shop },
       });
-    } catch (dbError) {
-      console.error("DB lookup failed:", dbError);
+    } catch (dbErr) {
+      console.error("DB fallback lookup error:", dbErr);
     }
   }
 
-  return { subscription, billingCheckError };
+  return { subscription, billingApiAvailable };
 };
 
+// ─── Action ─────────────────────────────────────────────────────────────────
 export const action = async ({ request }) => {
   const { billing, session } = await authenticate.admin(request);
   const formData = await request.formData();
   const plan = formData.get("plan");
 
-  if (!plan) {
-    throw new Response("Missing plan field", { status: 400 });
-  }
+  if (!plan) throw new Response("Missing plan field", { status: 400 });
 
-  // ── FREE DOWNGRADE ──────────────────────────────────────────────────────────
+  // ── FREE DOWNGRADE ──────────────────────────────────────────────────────
   if (plan === "FREE") {
+    // Try to cancel Shopify subscription (best-effort — may be unavailable for Custom Apps)
     try {
-      // Find existing subscription to get the Shopify subscriptionId
       const existing = await prisma.subscription.findUnique({
         where: { shop: session.shop },
       });
-
       if (existing?.subscriptionId) {
-        // Cancel on Shopify's side so the merchant is no longer charged
-        try {
-          await billing.cancel({
-            subscriptionId: existing.subscriptionId,
-            isTest: true,
-            prorate: true,
-          });
-        } catch (cancelError) {
-          // Log but don't block DB update — Shopify may have already cancelled
-          console.warn("billing.cancel() error (non-fatal):", cancelError.message);
-        }
+        await safeBillingCancel(billing, existing.subscriptionId);
       }
+    } catch (lookupErr) {
+      console.warn("Could not look up existing subscription for cancel:", lookupErr.message);
+    }
 
-      // Update DB to FREE/ACTIVE
+    // Always update DB regardless of Shopify API result
+    try {
       await prisma.subscription.upsert({
         where: { shop: session.shop },
         create: { shop: session.shop, plan: "FREE", status: "ACTIVE" },
         update: { plan: "FREE", status: "ACTIVE", subscriptionId: null },
       });
-    } catch (dbError) {
-      console.error("DB error during FREE downgrade:", dbError);
+    } catch (dbErr) {
+      console.error("DB error during FREE downgrade:", dbErr);
       throw new Response("Database error while downgrading plan", { status: 500 });
     }
-
-    return { success: true, message: "Downgraded to Free plan." };
+    return { success: true };
   }
 
-  // ── PAID PLAN UPGRADE ───────────────────────────────────────────────────────
-  // We do NOT bypass billing. We call billing.request() which returns a redirect
-  // Response that Remix forwards to the browser → merchant sees Shopify approval page.
+  // ── PAID PLAN UPGRADE ───────────────────────────────────────────────────
+  const returnUrl = `${process.env.SHOPIFY_APP_URL}/billing/callback`;
+
+  // Mark as PENDING before redirecting so we know a request is in flight
   try {
-    // Mark subscription as PENDING so we know a billing request is in flight
     await prisma.subscription.upsert({
       where: { shop: session.shop },
       create: { shop: session.shop, plan, status: "PENDING" },
       update: { plan, status: "PENDING" },
     });
-
-    // This call returns a redirect Response to Shopify's approval page.
-    // We MUST return it so Remix sends the 302 to the browser.
-    const redirectUrl = `${process.env.SHOPIFY_APP_URL}/billing/callback`;
-
-    return await billing.request({
-      plan,
-      isTest: true,
-      returnUrl: redirectUrl,
-    });
-  } catch (error) {
-    console.error("billing.request() failed:", error);
-
-    // Revert PENDING status on failure
-    try {
-      await prisma.subscription.upsert({
-        where: { shop: session.shop },
-        create: { shop: session.shop, plan: "FREE", status: "ACTIVE" },
-        update: { status: "ACTIVE", plan: "FREE" },
-      });
-    } catch (_) {}
-
-    // Throw a proper Response so Remix shows the error boundary
-    throw new Response(
-      JSON.stringify({ message: error?.message || "Failed to initiate billing" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+  } catch (dbErr) {
+    console.error("DB PENDING upsert error:", dbErr);
   }
+
+  const billingResult = await safeBillingRequest(billing, plan, returnUrl);
+
+  if (billingResult.available && billingResult.redirect) {
+    // Shopify Billing API is available — redirect to approval page
+    return billingResult.redirect;
+  }
+
+  // Billing API is not available for this app type (Custom App / 403).
+  // We do NOT grant access silently. Instead, revert to FREE and inform the user.
+  try {
+    await prisma.subscription.upsert({
+      where: { shop: session.shop },
+      create: { shop: session.shop, plan: "FREE", status: "ACTIVE" },
+      update: { plan: "FREE", status: "ACTIVE" },
+    });
+  } catch (_) {}
+
+  // Return a structured response the UI can display as an informative banner
+  return {
+    success: false,
+    billingUnavailable: true,
+    message:
+      "Shopify Billing is not available for this app type. " +
+      "To enable paid plans, this app must be published to the Shopify App Store or " +
+      "have billing enabled in the Shopify Partners Dashboard.",
+  };
 };
 
-// ─── UI Helpers ─────────────────────────────────────────────────────────────
-
-const PLAN_ORDER = ["FREE", PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM];
+// ─── UI Helpers ──────────────────────────────────────────────────────────────
 
 function getPlanButtonLabel(planId, currentPlan) {
   if (planId === currentPlan) return "Current Plan";
@@ -198,23 +209,25 @@ function getPlanBadgeTone(planId) {
   }
 }
 
+// ─── Component ───────────────────────────────────────────────────────────────
 export default function PricingPage() {
-  const { subscription, billingCheckError } = useLoaderData();
+  const { subscription, billingApiAvailable } = useLoaderData();
   const submit = useSubmit();
   const navigate = useNavigate();
   const navigation = useNavigation();
   const [searchParams] = useSearchParams();
 
   const isSubmitting = navigation.state === "submitting";
-  const userPlan = (subscription?.status === "ACTIVE" ? subscription?.plan : null) || "FREE";
+  const userPlan =
+    subscription?.status === "ACTIVE" ? subscription?.plan || "FREE" : "FREE";
   const billingStatus = searchParams.get("billingStatus");
+  const accessDeniedTier = searchParams.get("accessDenied");
 
   const handleSubscribe = (planId) => {
     submit({ plan: planId }, { method: "post" });
   };
 
   const statusBanner = () => {
-    const accessDeniedTier = searchParams.get("accessDenied");
     if (accessDeniedTier) {
       const tierName = accessDeniedTier.replace("PLAN_", "");
       return (
@@ -254,14 +267,19 @@ export default function PricingPage() {
       backAction={{ content: "Dashboard", onAction: () => navigate("/app") }}
     >
       <BlockStack gap="500">
-        {billingCheckError && (
-          <Banner tone="warning" title="Live billing sync unavailable">
-            We couldn't verify your subscription with Shopify right now. Showing
-            last known plan from our database. Features are granted based on your
-            last confirmed active plan.
+
+        {/* Billing API unavailability notice */}
+        {!billingApiAvailable && (
+          <Banner tone="warning" title="Live billing unavailable">
+            The Shopify Billing API is not accessible for this app type (Custom
+            App or billing not yet enabled in the Partners Dashboard). Plan
+            information shown is based on your last known database record.
+            To enable real subscription billing, publish this app to the
+            Shopify App Store.
           </Banner>
         )}
 
+        {/* Billing status banners */}
         {statusBanner()}
 
         {/* Active subscription info */}
@@ -278,8 +296,8 @@ export default function PricingPage() {
 
         {subscription?.status === "PENDING" && (
           <Banner tone="attention" title="Awaiting payment approval">
-            A subscription request is pending. Complete the payment on Shopify's
-            approval page to activate your plan.
+            A subscription request is pending. Complete the payment on
+            Shopify&apos;s approval page to activate your plan.
           </Banner>
         )}
 
@@ -292,7 +310,6 @@ export default function PricingPage() {
           {subscriptionPlans.map((plan) => {
             const isCurrent = userPlan === plan.id;
             const buttonLabel = getPlanButtonLabel(plan.id, userPlan);
-            const isLoading = isSubmitting;
             const isPaidPlan = plan.id !== "FREE";
 
             return (
@@ -300,11 +317,17 @@ export default function PricingPage() {
                 key={plan.id}
                 columnSpan={{ xs: 6, sm: 6, md: 3, lg: 3, xl: 3 }}
               >
-                <Card background={isCurrent ? "bg-surface-secondary" : "bg-surface"}>
+                <Card
+                  background={
+                    isCurrent ? "bg-surface-secondary" : "bg-surface"
+                  }
+                >
                   <BlockStack gap="500">
                     <BlockStack gap="200" align="center" inlineAlign="center">
                       {isCurrent && (
-                        <Badge tone={getPlanBadgeTone(plan.id)}>Current Plan</Badge>
+                        <Badge tone={getPlanBadgeTone(plan.id)}>
+                          Current Plan
+                        </Badge>
                       )}
                       <Text variant="headingLg" as="h3">
                         {plan.name}
@@ -330,8 +353,8 @@ export default function PricingPage() {
                       </List>
                     </div>
 
-                    {isLoading && isCurrent ? (
-                      <InlineStack align="center">
+                    {isSubmitting ? (
+                      <InlineStack align="center" gap="200">
                         <Spinner size="small" />
                         <Text>Processing...</Text>
                       </InlineStack>
@@ -339,9 +362,8 @@ export default function PricingPage() {
                       <Button
                         fullWidth
                         variant={isCurrent ? "secondary" : "primary"}
-                        disabled={isCurrent || isLoading}
+                        disabled={isCurrent || isSubmitting}
                         onClick={() => handleSubscribe(plan.id)}
-                        loading={isLoading && !isCurrent}
                       >
                         {buttonLabel}
                       </Button>
