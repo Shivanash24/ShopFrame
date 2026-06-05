@@ -38,9 +38,6 @@ const shopify = shopifyApp({
       interval: BillingInterval.Every30Days,
     },
   },
-  future: {
-    v3_webhookAdminContext: true,
-  },
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
     : {}),
