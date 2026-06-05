@@ -8,6 +8,44 @@ import {
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
 
+// Custom wrapper to fix Prisma + MongoDB issues
+class MongoDBSessionStorage extends PrismaSessionStorage {
+  async storeSession(session) {
+    await this.ready;
+    const data = this.sessionToRow(session);
+    
+    // Fix 1: MongoDB cannot update the _id field. We must omit it from the update payload.
+    const { id, ...updateData } = data;
+
+    // Fix 2: Convert userId to String because Prisma schema expects String, but Shopify sends a number
+    if (data.userId !== null && data.userId !== undefined) {
+      data.userId = String(data.userId);
+      if (updateData.userId !== undefined) {
+        updateData.userId = String(updateData.userId);
+      }
+    }
+
+    try {
+      await this.prisma[this.tableName].upsert({
+        where: { id },
+        update: updateData,
+        create: data,
+      });
+      return true;
+    } catch (error) {
+      if (error.code === 'P2002') {
+        await this.prisma[this.tableName].upsert({
+          where: { id },
+          update: updateData,
+          create: data,
+        });
+        return true;
+      }
+      throw error;
+    }
+  }
+}
+
 export const PLAN_BASIC = "PLAN_BASIC";
 export const PLAN_PRO = "PLAN_PRO";
 export const PLAN_PLATINUM = "PLAN_PLATINUM";
@@ -19,7 +57,7 @@ const shopify = shopifyApp({
   scopes: process.env.SCOPES?.split(","),
   appUrl: process.env.SHOPIFY_APP_URL || "",
   authPathPrefix: "/auth",
-  sessionStorage: new PrismaSessionStorage(prisma),
+  sessionStorage: new MongoDBSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
   billing: {
     [PLAN_BASIC]: {
