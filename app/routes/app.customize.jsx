@@ -17,7 +17,8 @@ import {
   Collapsible,
 } from "@shopify/polaris";
 import { DragHandleIcon, ChevronDownIcon, ChevronUpIcon } from "@shopify/polaris-icons";
-import { authenticate, canAccessTier } from "../shopify.server";
+import { authenticate } from "../shopify.server";
+import { canAccessTier } from "../plans.js";
 import prisma from "../db.server";
 import { templates } from "../data/templates";
 

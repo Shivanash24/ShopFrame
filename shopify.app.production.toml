@@ -1,7 +1,7 @@
 # Production Configuration for Vercel
 
 client_id = "0a5396ee55e709188d97bcbfffe50795"
-application_url = "https://shop-frame.vercel.app"
+application_url = "https://shopframe.karvocrm.store"
 embedded = true
 name = "shopframe"
 
@@ -21,9 +21,10 @@ scopes = "write_themes,read_themes"
 
 [auth]
 redirect_urls = [
-  "https://shop-frame.vercel.app/auth/callback",
-  "https://shop-frame.vercel.app/auth/shopify/callback",
-  "https://shop-frame.vercel.app/auth/tokens/callback",
+  "https://shopframe.karvocrm.store/auth/callback",
+  "https://shopframe.karvocrm.store/auth/shopify/callback",
+  "https://shopframe.karvocrm.store/auth/tokens/callback",
+  "https://shopframe.karvocrm.store/billing/callback",
 ]
 
 [build]

@@ -8,12 +8,28 @@ import {
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
 
+// Plan constants and access-control helpers live in plans.js (no .server in name)
+// so they can be safely imported by both server and client code.
+export {
+  PLAN_BASIC,
+  PLAN_PRO,
+  PLAN_PLATINUM,
+  PLAN_LEVELS,
+  ALL_PAID_PLANS,
+  PLAN_ORDER,
+  canAccessTier,
+  getPlanDisplayName,
+} from "./plans.js";
+
+// Import constants for use inside this file (billing config)
+import { PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM } from "./plans.js";
+
 // Custom wrapper to fix Prisma + MongoDB issues
 class MongoDBSessionStorage extends PrismaSessionStorage {
   async storeSession(session) {
     await this.ready;
     const data = this.sessionToRow(session);
-    
+
     // Fix 1: MongoDB cannot update the _id field. We must omit it from the update payload.
     const { id, ...updateData } = data;
 
@@ -33,7 +49,7 @@ class MongoDBSessionStorage extends PrismaSessionStorage {
       });
       return true;
     } catch (error) {
-      if (error.code === 'P2002') {
+      if (error.code === "P2002") {
         await this.prisma[this.tableName].upsert({
           where: { id },
           update: updateData,
@@ -44,28 +60,6 @@ class MongoDBSessionStorage extends PrismaSessionStorage {
       throw error;
     }
   }
-}
-
-export const PLAN_BASIC = "PLAN_BASIC";
-export const PLAN_PRO = "PLAN_PRO";
-export const PLAN_PLATINUM = "PLAN_PLATINUM";
-
-// Returns a numeric level so higher plans include lower tier access.
-export const PLAN_LEVELS = {
-  FREE: 0,
-  PLAN_BASIC: 1,
-  PLAN_PRO: 2,
-  PLAN_PLATINUM: 3,
-};
-
-/**
- * Returns true if the active subscription plan can access content
- * of the required tier.
- */
-export function canAccessTier(activePlan, requiredTier) {
-  const userLevel = PLAN_LEVELS[activePlan] ?? 0;
-  const requiredLevel = PLAN_LEVELS[requiredTier] ?? 0;
-  return userLevel >= requiredLevel;
 }
 
 const shopify = shopifyApp({

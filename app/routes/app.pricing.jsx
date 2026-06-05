@@ -19,12 +19,8 @@ import {
   Banner,
   Spinner,
 } from "@shopify/polaris";
-import {
-  authenticate,
-  PLAN_BASIC,
-  PLAN_PRO,
-  PLAN_PLATINUM,
-} from "../shopify.server";
+import { authenticate } from "../shopify.server";
+import { PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM, PLAN_ORDER } from "../plans.js";
 import {
   safeBillingCheck,
   safeBillingRequest,
@@ -34,7 +30,7 @@ import prisma from "../db.server";
 import { subscriptionPlans } from "../data/templates";
 
 const ALL_PAID_PLANS = [PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM];
-const PLAN_ORDER = ["FREE", PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM];
+
 
 // ─── Loader ────────────────────────────────────────────────────────────────
 export const loader = async ({ request }) => {

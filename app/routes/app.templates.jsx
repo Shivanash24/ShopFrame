@@ -15,7 +15,8 @@ import {
   Banner,
 } from "@shopify/polaris";
 import { LockIcon, EditIcon, ViewIcon } from "@shopify/polaris-icons";
-import { authenticate, canAccessTier } from "../shopify.server";
+import { authenticate } from "../shopify.server";
+import { canAccessTier } from "../plans.js";
 import prisma from "../db.server";
 import { templates, templateCategories } from "../data/templates";
 import LivePreviewPanel from "../components/customize/LivePreviewPanel";
