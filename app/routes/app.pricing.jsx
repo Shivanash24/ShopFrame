@@ -70,7 +70,14 @@ export const action = async ({ request }) => {
       });
       return { success: true, bypassedBilling: true };
     }
-    throw error;
+    if (error instanceof Error || error instanceof Response) {
+      throw error;
+    }
+    // Wrap unexpected objects in a Response or Error
+    throw new Response(
+      JSON.stringify({ message: error?.message || "Unexpected Server Error", details: error }), 
+      { status: error?.networkStatusCode || 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   return { success: true };
