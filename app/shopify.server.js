@@ -50,6 +50,24 @@ export const PLAN_BASIC = "PLAN_BASIC";
 export const PLAN_PRO = "PLAN_PRO";
 export const PLAN_PLATINUM = "PLAN_PLATINUM";
 
+// Returns a numeric level so higher plans include lower tier access.
+export const PLAN_LEVELS = {
+  FREE: 0,
+  PLAN_BASIC: 1,
+  PLAN_PRO: 2,
+  PLAN_PLATINUM: 3,
+};
+
+/**
+ * Returns true if the active subscription plan can access content
+ * of the required tier.
+ */
+export function canAccessTier(activePlan, requiredTier) {
+  const userLevel = PLAN_LEVELS[activePlan] ?? 0;
+  const requiredLevel = PLAN_LEVELS[requiredTier] ?? 0;
+  return userLevel >= requiredLevel;
+}
+
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",

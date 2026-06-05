@@ -25,6 +25,7 @@ redirect_urls = [
   "https://shop-frame.vercel.app/auth/callback",
   "https://shop-frame.vercel.app/auth/shopify/callback",
   "https://shop-frame.vercel.app/auth/tokens/callback",
+  "https://shop-frame.vercel.app/billing/callback",
 ]
 
 [build]

@@ -33,18 +33,44 @@ export const loader = async ({ request }) => {
   const templateId = url.searchParams.get("template") || "aesthetic-clothing";
 
   const template = templates.find(t => t.id === templateId) || templates[0];
-  
-  const customization = await prisma.customization.findUnique({
-    where: { shop_templateId: { shop: session.shop, templateId: template.id } }
-  });
 
-  return { 
-    template, 
+  // Verify the merchant has an active subscription for this template's tier
+  let subscription = null;
+  try {
+    subscription = await prisma.subscription.findUnique({
+      where: { shop: session.shop },
+    });
+  } catch (dbError) {
+    console.error("Customize loader DB error:", dbError);
+  }
+
+  const activePlan =
+    subscription?.status === "ACTIVE" ? subscription?.plan : "FREE";
+  const { canAccessTier } = await import("../shopify.server");
+
+  if (template.tier !== "FREE" && !canAccessTier(activePlan, template.tier)) {
+    // Merchant doesn't have the required plan — redirect to pricing
+    const { redirect } = await import("@remix-run/node");
+    return redirect(`/app/pricing?accessDenied=${template.tier}`);
+  }
+
+  let customization = null;
+  try {
+    customization = await prisma.customization.findUnique({
+      where: { shop_templateId: { shop: session.shop, templateId: template.id } },
+    });
+  } catch (dbError) {
+    console.error("Customize loader customization DB error:", dbError);
+  }
+
+  return {
+    template,
+    subscription,
     customization: customization || {
       sections: JSON.stringify(template.sections),
       colors: JSON.stringify({ primary: '#000000', background: '#ffffff' }),
       fonts: JSON.stringify({ heading: 'Inter', body: 'Inter' }),
-    }
+    },
   };
 };
 

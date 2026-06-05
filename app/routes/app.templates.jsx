@@ -12,9 +12,10 @@ import {
   Button,
   Icon,
   Modal,
+  Banner,
 } from "@shopify/polaris";
 import { LockIcon, EditIcon, ViewIcon } from "@shopify/polaris-icons";
-import { authenticate } from "../shopify.server";
+import { authenticate, canAccessTier } from "../shopify.server";
 import prisma from "../db.server";
 import { templates, templateCategories } from "../data/templates";
 import LivePreviewPanel from "../components/customize/LivePreviewPanel";
@@ -71,14 +72,16 @@ export default function TemplatesPage() {
     return "Upgrade Plan";
   };
 
-  const userPlan = subscription?.plan || "FREE";
-  
+  // Access is granted only if:
+  // 1. The subscription exists and status is ACTIVE
+  // 2. The plan level covers the required tier
+  // FREE templates are always accessible regardless of subscription.
+  const activePlan =
+    subscription?.status === "ACTIVE" ? subscription?.plan : "FREE";
+
   const canAccess = (tier) => {
-    if (tier === 'FREE') return true;
-    if (userPlan === 'PLAN_PLATINUM') return true;
-    if (userPlan === 'PLAN_PRO' && (tier === 'PLAN_PRO' || tier === 'PLAN_BASIC')) return true;
-    if (userPlan === 'PLAN_BASIC' && tier === 'PLAN_BASIC') return true;
-    return false;
+    if (tier === "FREE") return true; // FREE always accessible
+    return canAccessTier(activePlan, tier);
   };
 
   // CSS inside the component for custom styling
