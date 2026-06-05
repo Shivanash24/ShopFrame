@@ -1,73 +1,251 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --brand-primary: #005bd3;
+  --brand-secondary: #8e2de2;
+  --bg-color: #f4f6f8;
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --text-main: #111;
+  --text-muted: #6b7177;
+}
+
 .index {
-  align-items: center;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
   display: flex;
+  align-items: center;
   justify-content: center;
-  height: 100%;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e0e7ff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add a beautiful ambient glow in the background */
+.index::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, rgba(0, 91, 211, 0.15) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.index::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 50%;
+  height: 50%;
+  background: radial-gradient(circle, rgba(142, 45, 226, 0.15) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.container {
+  max-width: 1000px;
   width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  z-index: 1;
+}
+
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.02);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 4rem;
   text-align: center;
-  padding: 1rem;
+  transition: all 0.3s ease;
 }
 
-.heading,
+.card:hover {
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.12);
+}
+
+.logoWrapper {
+  margin-bottom: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0, 91, 211, 0.3);
+}
+
+.logoIcon {
+  color: white;
+  width: 40px;
+  height: 40px;
+}
+
+.heading {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--text-main);
+  margin: 0 0 1rem 0;
+  line-height: 1.1;
+}
+
+.highlight {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .text {
-  padding: 0;
-  margin: 0;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  margin: 0 0 3rem 0;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
 }
 
-.text {
-  font-size: 1.2rem;
-  padding-bottom: 2rem;
-}
-
-.content {
-  display: grid;
-  gap: 2rem;
+.formContainer {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  max-width: 500px;
+  margin: 0 auto 3rem auto;
+  border: 1px solid #f0f0f0;
 }
 
 .form {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin: 0 auto;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .label {
-  display: grid;
-  gap: 0.2rem;
-  max-width: 20rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   text-align: left;
-  font-size: 1rem;
+}
+
+.labelText {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputPrefix {
+  position: absolute;
+  left: 1rem;
+  color: var(--text-muted);
 }
 
 .input {
-  padding: 0.4rem;
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  font-size: 1rem;
+  border: 2px solid #e1e3e5;
+  border-radius: 12px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 4px rgba(0, 91, 211, 0.1);
+}
+
+.inputHint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
 }
 
 .button {
-  padding: 0.4rem;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(0, 91, 211, 0.2);
 }
 
-.list {
-  list-style: none;
-  padding: 0;
-  padding-top: 3rem;
-  margin: 0;
-  display: flex;
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 91, 211, 0.3);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
+  margin-top: 2rem;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 3rem;
 }
 
-.list > li {
-  max-width: 20rem;
+.featureCard {
   text-align: left;
 }
 
-@media only screen and (max-width: 50rem) {
-  .list {
-    display: block;
-  }
+.featureIcon {
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 91, 211, 0.1);
+  color: var(--brand-primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
 
-  .list > li {
-    padding-bottom: 1rem;
+.featureTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.featureDesc {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 2rem;
+  }
+  .heading {
+    font-size: 2.2rem;
+  }
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }
