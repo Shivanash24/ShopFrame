@@ -34,10 +34,14 @@ export default function App() {
                     var parentHref = window.top.location.href;
                   }
                 } catch (e) {
-                  // Cross-origin parent detected (e.g. chrome-error://)
-                  // Redirect the top frame to the Shopify app auth URL.
-                  var authUrl = '/auth/login' + window.location.search;
-                  window.top.location.href = authUrl;
+                  // Cross-origin parent detected (e.g. admin.shopify.com or chrome-error://)
+                  // Use postMessage to communicate the redirect intention safely
+                  // without violating Same-Origin Policy.
+                  var authUrl = window.location.origin + '/auth/login' + window.location.search;
+                  window.parent.postMessage({
+                    type: 'REDIRECT',
+                    url: authUrl
+                  }, '*');
                 }
 
                 // ─── Patch 'unload' event → 'pagehide' for Shopify App Bridge ────────
