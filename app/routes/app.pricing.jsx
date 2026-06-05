@@ -30,19 +30,28 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   const plan = formData.get("plan");
 
+  if (!plan) {
+    throw new Response("Missing plan field", { status: 400 });
+  }
+
   if (plan === "FREE") {
-    // Downgrade to free logic
-    await prisma.subscription.upsert({
-      where: { shop: session.shop },
-      create: { shop: session.shop, plan: "FREE" },
-      update: { plan: "FREE" },
-    });
+    // Downgrade to free — cancel any active subscription
+    try {
+      await prisma.subscription.upsert({
+        where: { shop: session.shop },
+        create: { shop: session.shop, plan: "FREE", status: "ACTIVE" },
+        update: { plan: "FREE", status: "ACTIVE" },
+      });
+    } catch (dbError) {
+      console.error("DB error during FREE downgrade:", dbError);
+      throw new Response("Database error while updating subscription", { status: 500 });
+    }
     return { success: true };
   }
 
   try {
     // Request subscription via Shopify Billing API
-    const result = await billing.require({
+    await billing.require({
       plans: [plan],
       isTest: true,
       onFailure: async () => billing.request({
@@ -52,30 +61,41 @@ export const action = async ({ request }) => {
       }),
     });
     
-    // If Shopify billing is already active
+    // If Shopify billing already active, persist the plan locally
     await prisma.subscription.upsert({
       where: { shop: session.shop },
-      create: { shop: session.shop, plan },
-      update: { plan },
+      create: { shop: session.shop, plan, status: "ACTIVE" },
+      update: { plan, status: "ACTIVE" },
     });
   } catch (error) {
-    // 403 Forbidden occurs when the app is a Custom App or lacks public billing permissions.
-    // We catch this to allow development and testing to continue successfully.
-    if (error.response?.code === 403 || error.networkStatusCode === 403 || error.message?.includes('Forbidden')) {
-      console.warn("Shopify Billing API returned 403 Forbidden. Simulating billing upgrade locally...");
-      await prisma.subscription.upsert({
-        where: { shop: session.shop },
-        create: { shop: session.shop, plan },
-        update: { plan },
-      });
+    // 403 Forbidden: app is a Custom App lacking public billing permissions.
+    // Simulate the upgrade locally so dev/testing can continue.
+    if (
+      error.response?.code === 403 ||
+      error.networkStatusCode === 403 ||
+      (typeof error.message === "string" && error.message.includes("Forbidden"))
+    ) {
+      console.warn("Shopify Billing API 403 — simulating upgrade locally.");
+      try {
+        await prisma.subscription.upsert({
+          where: { shop: session.shop },
+          create: { shop: session.shop, plan, status: "ACTIVE" },
+          update: { plan, status: "ACTIVE" },
+        });
+      } catch (dbError) {
+        console.error("DB error during billing bypass upsert:", dbError);
+        throw new Response("Database error while saving subscription", { status: 500 });
+      }
       return { success: true, bypassedBilling: true };
     }
+
+    // Re-throw standard errors/Responses so Remix handles them correctly
     if (error instanceof Error || error instanceof Response) {
       throw error;
     }
-    // Wrap unexpected objects in a Response or Error
+    // Wrap any other unknown objects into a proper Response
     throw new Response(
-      JSON.stringify({ message: error?.message || "Unexpected Server Error", details: error }), 
+      JSON.stringify({ message: error?.message || "Unexpected Server Error" }),
       { status: error?.networkStatusCode || 500, headers: { "Content-Type": "application/json" } }
     );
   }

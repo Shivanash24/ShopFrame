@@ -21,10 +21,15 @@ import LivePreviewPanel from "../components/customize/LivePreviewPanel";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
-  const subscription = await prisma.subscription.findUnique({
-    where: { shop: session.shop },
-  });
-  return { subscription };
+  try {
+    const subscription = await prisma.subscription.findUnique({
+      where: { shop: session.shop },
+    });
+    return { subscription };
+  } catch (error) {
+    console.error("Templates loader DB error:", error);
+    return { subscription: null };
+  }
 };
 
 export default function TemplatesPage() {

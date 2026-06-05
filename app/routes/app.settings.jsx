@@ -14,10 +14,15 @@ import prisma from "../db.server";
 
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
-  const store = await prisma.store.findUnique({
-    where: { shop: session.shop },
-  });
-  return { shop: session.shop, store };
+  try {
+    const store = await prisma.store.findUnique({
+      where: { shop: session.shop },
+    });
+    return { shop: session.shop, store };
+  } catch (error) {
+    console.error("Settings loader DB error:", error);
+    return { shop: session.shop, store: null };
+  }
 };
 
 export default function SettingsPage() {

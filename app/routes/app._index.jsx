@@ -26,16 +26,22 @@ import prisma from "../db.server";
 export const loader = async ({ request }) => {
   const { session } = await authenticate.admin(request);
   
-  // Fetch store and subscription data
-  const store = await prisma.store.findUnique({
-    where: { shop: session.shop },
-  });
+  try {
+    // Fetch store and subscription data
+    const store = await prisma.store.findUnique({
+      where: { shop: session.shop },
+    });
 
-  const subscription = await prisma.subscription.findUnique({
-    where: { shop: session.shop },
-  });
+    const subscription = await prisma.subscription.findUnique({
+      where: { shop: session.shop },
+    });
 
-  return { store, subscription };
+    return { store, subscription };
+  } catch (error) {
+    console.error("Dashboard loader DB error:", error);
+    // Return safe defaults so the UI still renders instead of crashing
+    return { store: null, subscription: null };
+  }
 };
 
 export default function Dashboard() {
