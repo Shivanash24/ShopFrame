@@ -4,6 +4,8 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteError,
+  isRouteErrorResponse,
 } from "@remix-run/react";
 
 export default function App() {
@@ -102,6 +104,49 @@ export default function App() {
       <body>
         <Outlet />
         <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  let errorMessage = "Unknown error";
+  let errorStack = "";
+
+  if (isRouteErrorResponse(error)) {
+    errorMessage = `${error.status} ${error.statusText} - ${error.data}`;
+  } else if (error instanceof Error) {
+    errorMessage = error.message;
+    errorStack = error.stack;
+  }
+
+  return (
+    <html>
+      <head>
+        <title>Server Error</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+          <h1 style={{ color: "red" }}>500 Internal Server Error</h1>
+          <p><strong>Message:</strong> {errorMessage}</p>
+          {errorStack && (
+            <pre style={{ background: "#f1f1f1", padding: "10px", overflow: "auto" }}>
+              {errorStack}
+            </pre>
+          )}
+          <p>Please check your Vercel Environment Variables:</p>
+          <ul>
+            <li>SHOPIFY_API_KEY</li>
+            <li>SHOPIFY_API_SECRET</li>
+            <li>SHOPIFY_APP_URL</li>
+            <li>SCOPES</li>
+            <li>DATABASE_URL</li>
+          </ul>
+        </div>
         <Scripts />
       </body>
     </html>
