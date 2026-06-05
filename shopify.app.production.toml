@@ -23,6 +23,7 @@ scopes = "write_themes,read_themes"
 redirect_urls = [
   "https://shop-frame.vercel.app/auth/callback",
   "https://shop-frame.vercel.app/auth/shopify/callback",
+  "https://shop-frame.vercel.app/auth/tokens/callback",
 ]
 
 [build]

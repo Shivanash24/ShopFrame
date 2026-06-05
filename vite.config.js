@@ -46,7 +46,12 @@ export default defineConfig({
   server: {
     allowedHosts: allowedHosts,
     cors: {
-      preflightContinue: true,
+      origin: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+      allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization", "X-Shopify-Access-Token"],
+      credentials: true,
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
     },
     port: Number(process.env.PORT || 3000),
     hmr: hmrConfig,

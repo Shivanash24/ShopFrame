@@ -15,6 +15,34 @@ export default async function handleRequest(
   remixContext,
 ) {
   addDocumentResponseHeaders(request, responseHeaders);
+
+  // Ensure CORS and CSP headers are set for Shopify embedded app iframe context.
+  // These prevent net::ERR_FAILED when the app is loaded inside the Shopify Admin.
+  const requestUrl = new URL(request.url);
+  const shop = requestUrl.searchParams.get("shop");
+  if (shop) {
+    // Allow iframe embedding from Shopify Admin and the specific shop domain
+    responseHeaders.set(
+      "Content-Security-Policy",
+      `frame-ancestors https://admin.shopify.com https://${shop};`
+    );
+  } else {
+    responseHeaders.set(
+      "Content-Security-Policy",
+      `frame-ancestors https://admin.shopify.com;`
+    );
+  }
+
+  // Explicit CORS headers for all document responses
+  if (!responseHeaders.has("Access-Control-Allow-Origin")) {
+    responseHeaders.set("Access-Control-Allow-Origin", "*");
+  }
+  if (!responseHeaders.has("Access-Control-Allow-Methods")) {
+    responseHeaders.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+  }
+  if (!responseHeaders.has("Access-Control-Allow-Headers")) {
+    responseHeaders.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Shopify-Access-Token");
+  }
   const userAgent = request.headers.get("user-agent");
   const callbackName = isbot(userAgent ?? "") ? "onAllReady" : "onShellReady";
 
