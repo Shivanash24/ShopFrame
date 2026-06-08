@@ -5,10 +5,18 @@ import {
   Scripts,
   ScrollRestoration,
   useRouteError,
+  useLoaderData,
 } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 
+export const loader = async () => {
+  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+};
+
 export default function App() {
+  const data = useLoaderData();
+  const apiKey = data?.apiKey || "";
+
   return (
     <html>
       <head>
@@ -19,6 +27,8 @@ export default function App() {
           rel="stylesheet"
           href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
         />
+        <meta name="shopify-api-key" content={apiKey} />
+        <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
         <Meta />
         <Links />
       </head>

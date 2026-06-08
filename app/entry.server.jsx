@@ -18,20 +18,7 @@ export default async function handleRequest(
 
   // Ensure CORS and CSP headers are set for Shopify embedded app iframe context.
   // These prevent net::ERR_FAILED when the app is loaded inside the Shopify Admin.
-  const requestUrl = new URL(request.url);
-  const shop = requestUrl.searchParams.get("shop");
-  if (shop) {
-    // Allow iframe embedding from Shopify Admin and the specific shop domain
-    responseHeaders.set(
-      "Content-Security-Policy",
-      `frame-ancestors https://admin.shopify.com https://${shop};`
-    );
-  } else {
-    responseHeaders.set(
-      "Content-Security-Policy",
-      `frame-ancestors https://admin.shopify.com;`
-    );
-  }
+  // Note: addDocumentResponseHeaders already sets the correct CSP frame-ancestors.
 
   // Explicit CORS headers for all document responses
   if (!responseHeaders.has("Access-Control-Allow-Origin")) {
