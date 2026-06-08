@@ -9,13 +9,20 @@ import {
 } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 
-export const loader = async () => {
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+export const loader = async ({ request }) => {
+  const url = new URL(request.url);
+  const host = url.searchParams.get("host");
+
+  return { 
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    host: host || null
+  };
 };
 
 export default function App() {
   const data = useLoaderData();
   const apiKey = data?.apiKey || "";
+  const host = data?.host;
 
   return (
     <html>
@@ -27,8 +34,10 @@ export default function App() {
           rel="stylesheet"
           href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
         />
-        <meta name="shopify-api-key" content={apiKey} />
-        <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+        {apiKey && <meta name="shopify-api-key" content={apiKey} />}
+        {apiKey && host && (
+          <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+        )}
         <Meta />
         <Links />
       </head>

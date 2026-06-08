@@ -108,7 +108,37 @@ const shopify = shopifyApp({
 export default shopify;
 export const apiVersion = ApiVersion.January25;
 export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
-export const authenticate = shopify.authenticate;
+export const authenticate = {
+  ...shopify.authenticate,
+  admin: async (request) => {
+    try {
+      return await shopify.authenticate.admin(request);
+    } catch (error) {
+      if (error instanceof Response && [301, 302, 303, 307, 308].includes(error.status)) {
+        const url = new URL(request.url);
+        const host = url.searchParams.get("host");
+        const shop = url.searchParams.get("shop");
+        const location = error.headers.get("Location");
+        if (location) {
+          const redirectUrl = new URL(location, url.origin);
+          let modified = false;
+          if (host && !redirectUrl.searchParams.has("host")) {
+            redirectUrl.searchParams.set("host", host);
+            modified = true;
+          }
+          if (shop && !redirectUrl.searchParams.has("shop")) {
+            redirectUrl.searchParams.set("shop", shop);
+            modified = true;
+          }
+          if (modified) {
+            error.headers.set("Location", redirectUrl.toString());
+          }
+        }
+      }
+      throw error;
+    }
+  }
+};
 export const unauthenticated = shopify.unauthenticated;
 export const login = shopify.login;
 export const registerWebhooks = shopify.registerWebhooks;
