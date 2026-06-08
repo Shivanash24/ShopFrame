@@ -1,7 +1,7 @@
 import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
-import { NavMenu } from "@shopify/app-bridge-react";
+
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 import { authenticate } from "../shopify.server";
 
@@ -18,14 +18,14 @@ export default function App() {
 
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
-      <NavMenu>
+      <ui-nav-menu>
         <Link to="/app" rel="home">Dashboard</Link>
         <Link to="/app/templates">Templates</Link>
         <Link to="/app/customize">Customize</Link>
         <Link to="/app/pricing">Pricing</Link>
         <Link to="/app/settings">Settings</Link>
         <Link to="/app/support">Support</Link>
-      </NavMenu>
+      </ui-nav-menu>
       <Outlet />
     </AppProvider>
   );
