@@ -35,6 +35,9 @@ export default function App() {
           href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
         />
         {apiKey && <meta name="shopify-api-key" content={apiKey} />}
+        {apiKey && host && (
+          <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+        )}
         <Meta />
         <Links />
       </head>
@@ -49,7 +52,29 @@ export default function App() {
 
 // Shopify needs Remix to catch some thrown responses, so that their headers are included in the response.
 export function ErrorBoundary() {
-  return boundary.error(useRouteError());
+  const error = useRouteError();
+  console.error("Root ErrorBoundary caught an error:", error);
+  return (
+    <html>
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <div style={{ padding: "20px", color: "red", background: "#fee", border: "1px solid red", margin: "20px" }}>
+          <h2>Root Error Boundary</h2>
+          <pre style={{ whiteSpace: "pre-wrap" }}>
+            {error instanceof Error ? error.stack || error.message : JSON.stringify(error)}
+          </pre>
+          <div style={{ display: "none" }}>
+            {boundary.error(error)}
+          </div>
+        </div>
+        <Scripts />
+      </body>
+    </html>
+  );
 }
 
 export const headers = (headersArgs) => {
