@@ -35,9 +35,6 @@ export default function App() {
           href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
         />
         {apiKey && <meta name="shopify-api-key" content={apiKey} />}
-        {apiKey && host && (
-          <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
-        )}
         <Meta />
         <Links />
       </head>
@@ -58,6 +55,7 @@ export function ErrorBoundary() {
     <html>
       <head>
         <title>Oh no!</title>
+        <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
         <Meta />
         <Links />
       </head>

@@ -38,6 +38,7 @@ export function ErrorBoundary() {
   // In development or if we want to debug the blank screen, render the error on screen.
   return (
     <div style={{ padding: "20px", color: "red", background: "#fee", border: "1px solid red", margin: "20px" }}>
+      <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
       <h2>App Bridge Error Boundary</h2>
       <pre style={{ whiteSpace: "pre-wrap" }}>
         {error instanceof Error ? error.stack || error.message : JSON.stringify(error)}
