@@ -42,17 +42,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        {!host ? (
-          <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-            <h2>App Bridge Loading Error</h2>
-            <p>The <code>host</code> parameter is missing from the URL.</p>
-            <p>This page cannot load outside of the Shopify Admin iframe without a host parameter.</p>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
-            <p>Please ensure you are viewing this app from within the Shopify Admin.</p>
-          </div>
-        ) : (
-          <Outlet />
-        )}
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
       </body>
