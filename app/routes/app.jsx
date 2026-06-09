@@ -7,10 +7,16 @@ import { authenticate } from "../shopify.server";
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
+import { addDocumentResponseHeaders } from "../shopify.server";
+
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
 
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  return new Response(JSON.stringify({ apiKey: process.env.SHOPIFY_API_KEY || "" }), {
+    headers: addDocumentResponseHeaders(request, new Headers({
+      "Content-Type": "application/json",
+    })),
+  });
 };
 
 export default function App() {

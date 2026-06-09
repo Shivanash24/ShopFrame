@@ -9,14 +9,20 @@ import {
 } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 
+import { addDocumentResponseHeaders } from "./shopify.server";
+
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
   const host = url.searchParams.get("host");
 
-  return { 
+  return new Response(JSON.stringify({ 
     apiKey: process.env.SHOPIFY_API_KEY || "",
     host: host || null
-  };
+  }), {
+    headers: addDocumentResponseHeaders(request, new Headers({
+      "Content-Type": "application/json",
+    })),
+  });
 };
 
 export default function App() {
