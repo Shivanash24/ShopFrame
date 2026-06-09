@@ -33,21 +33,7 @@ export default function App() {
 
 // Shopify needs Remix to catch some thrown responses, so that their headers are included in the response.
 export function ErrorBoundary() {
-  const error = useRouteError();
-  console.error("ErrorBoundary caught an error:", error);
-  // In development or if we want to debug the blank screen, render the error on screen.
-  return (
-    <div style={{ padding: "20px", color: "red", background: "#fee", border: "1px solid red", margin: "20px" }}>
-      <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
-      <h2>App Bridge Error Boundary</h2>
-      <pre style={{ whiteSpace: "pre-wrap" }}>
-        {error instanceof Error ? error.stack || error.message : JSON.stringify(error)}
-      </pre>
-      <div style={{ display: "none" }}>
-        {boundary.error(error)}
-      </div>
-    </div>
-  );
+  return boundary.error(useRouteError());
 }
 
 export const headers = (headersArgs) => {
