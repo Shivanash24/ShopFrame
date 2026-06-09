@@ -3,7 +3,6 @@ import {
   Page,
   Layout,
   Text,
-  Card,
   Button,
   BlockStack,
   InlineStack,
@@ -479,7 +478,7 @@ export default function Dashboard() {
                   </Button>
                 </BlockStack>
               </div>
-
+                    
               {/* RECENT ACTIVITY */}
               <div className="premium-card">
                 <BlockStack gap="400">

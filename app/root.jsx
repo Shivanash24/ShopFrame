@@ -22,7 +22,6 @@ export const loader = async ({ request }) => {
 export default function App() {
   const data = useLoaderData();
   const apiKey = data?.apiKey || "";
-  const host = data?.host;
 
   return (
     <html>

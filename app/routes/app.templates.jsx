@@ -12,7 +12,6 @@ import {
   Button,
   Icon,
   Modal,
-  Banner,
 } from "@shopify/polaris";
 import { LockIcon, EditIcon, ViewIcon } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";

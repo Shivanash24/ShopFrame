@@ -5,7 +5,6 @@ export const action = async ({ request }) => {
   const formData = await request.formData();
   
   const templateId = formData.get("templateId");
-  const sections = formData.get("sections");
   
   try {
     // 1. Fetch active theme

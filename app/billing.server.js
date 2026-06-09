@@ -17,7 +17,6 @@
  * We fall back to whatever is in the database (which defaults to FREE).
  */
 
-const BILLING_UNAVAILABLE_CODES = [403];
 
 /**
  * Returns true if the error is a Shopify 403 billing-unavailable error.

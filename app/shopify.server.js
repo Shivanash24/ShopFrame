@@ -8,6 +8,9 @@ import {
 import { PrismaSessionStorage } from "@shopify/shopify-app-session-storage-prisma";
 import prisma from "./db.server";
 
+// Import constants for use inside this file (billing config)
+import { PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM } from "./plans.js";
+
 // Plan constants and access-control helpers live in plans.js (no .server in name)
 // so they can be safely imported by both server and client code.
 export {
@@ -20,9 +23,6 @@ export {
   canAccessTier,
   getPlanDisplayName,
 } from "./plans.js";
-
-// Import constants for use inside this file (billing config)
-import { PLAN_BASIC, PLAN_PRO, PLAN_PLATINUM } from "./plans.js";
 
 // Custom wrapper to fix Prisma + MongoDB issues
 class MongoDBSessionStorage extends PrismaSessionStorage {
