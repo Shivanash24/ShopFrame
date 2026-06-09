@@ -108,15 +108,15 @@ const shopify = shopifyApp({
     },
     CUSTOMERS_DATA_REQUEST: {
       deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/customers/data_request",
+      callbackUrl: "/webhooks",
     },
     CUSTOMERS_REDACT: {
       deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/customers/redact",
+      callbackUrl: "/webhooks",
     },
     SHOP_REDACT: {
       deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/shop/redact",
+      callbackUrl: "/webhooks",
     },
   },
   ...(process.env.SHOP_CUSTOM_DOMAIN
