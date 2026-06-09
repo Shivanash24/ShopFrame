@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --brand-primary: #005bd3;
-  --brand-secondary: #8e2de2;
+  --brand-primary: #070506;
+  --brand-secondary: #4a4a4a;
   --bg-color: #f4f6f8;
   --card-bg: rgba(255, 255, 255, 0.85);
   --text-main: #111;
@@ -76,15 +76,16 @@
   justify-content: center;
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  background: white;
   border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0, 91, 211, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.logoIcon {
-  color: white;
-  width: 40px;
-  height: 40px;
+.logoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .heading {
