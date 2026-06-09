@@ -25,7 +25,7 @@ export const subscriptionPlans = [
   {
     name: "Basic Plan",
     id: "PLAN_BASIC",
-    price: 9.99,
+    price: 49,
     features: [
       "3 homepage designs",
       "Simple layouts",
@@ -39,7 +39,7 @@ export const subscriptionPlans = [
   {
     name: "Pro Plan",
     id: "PLAN_PRO",
-    price: 29.99,
+    price: 89,
     features: [
       "3 advanced homepage designs",
       "Better UI/UX",
@@ -56,7 +56,7 @@ export const subscriptionPlans = [
   {
     name: "Platinum Plan",
     id: "PLAN_PLATINUM",
-    price: 99.99,
+    price: 119,
     features: [
       "3 luxury premium homepage designs",
       "Highly modern UI",
