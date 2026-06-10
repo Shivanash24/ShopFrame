@@ -52,9 +52,27 @@ export default function App() {
   );
 }
 
-// Shopify needs Remix to catch some thrown responses, so that their headers are included in the response.
 export function ErrorBoundary() {
-  return boundary.error(useRouteError());
+  const error = useRouteError();
+
+  return (
+    <html lang="en">
+      <head>
+        <title>Oh no!</title>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        {/* We still call boundary.error(error) to handle Shopify's OAuth redirects and headers, while maintaining a valid HTML structure for other app errors */}
+        <div style={{ padding: "20px" }}>
+          {boundary.error(error)}
+        </div>
+        <Scripts />
+      </body>
+    </html>
+  );
 }
 
 export const headers = (headersArgs) => {
