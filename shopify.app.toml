@@ -30,3 +30,31 @@ redirect_urls = [
 
 [build]
 automatically_update_urls_on_dev = true
+
+[pos]
+embedded = false
+
+[nav_menu]
+  [[nav_menu.items]]
+  name = "Dashboard"
+  url = "/app"
+
+  [[nav_menu.items]]
+  name = "Templates"
+  url = "/app/templates"
+
+  [[nav_menu.items]]
+  name = "Customize"
+  url = "/app/customize"
+
+  [[nav_menu.items]]
+  name = "Pricing"
+  url = "/app/pricing"
+
+  [[nav_menu.items]]
+  name = "Settings"
+  url = "/app/settings"
+
+  [[nav_menu.items]]
+  name = "Support"
+  url = "/app/support"
