@@ -40,7 +40,6 @@ export default function App() {
           href="https://cdn.shopify.com/static/fonts/inter/v4/styles.css"
         />
         {apiKey && <meta name="shopify-api-key" content={apiKey} />}
-        <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
         <Meta />
         <Links />
       </head>
@@ -62,7 +61,6 @@ export function ErrorBoundary() {
         <title>Oh no!</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
         <Meta />
         <Links />
       </head>
