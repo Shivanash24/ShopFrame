@@ -11,17 +11,17 @@ import { boundary } from "@shopify/shopify-app-remix/server";
 
 import { addDocumentResponseHeaders } from "./shopify.server";
 
+import { json } from "@remix-run/node";
+
 export const loader = async ({ request }) => {
   const url = new URL(request.url);
   const host = url.searchParams.get("host");
 
-  return new Response(JSON.stringify({ 
+  return json({ 
     apiKey: process.env.SHOPIFY_API_KEY || "",
     host: host || null
-  }), {
-    headers: addDocumentResponseHeaders(request, new Headers({
-      "Content-Type": "application/json",
-    })),
+  }, {
+    headers: addDocumentResponseHeaders(request, new Headers()),
   });
 };
 

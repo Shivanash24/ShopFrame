@@ -8,13 +8,13 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 import { addDocumentResponseHeaders } from "../shopify.server";
 
+import { json } from "@remix-run/node";
+
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
 
-  return new Response(JSON.stringify({ apiKey: process.env.SHOPIFY_API_KEY || "" }), {
-    headers: addDocumentResponseHeaders(request, new Headers({
-      "Content-Type": "application/json",
-    })),
+  return json({ apiKey: process.env.SHOPIFY_API_KEY || "" }, {
+    headers: addDocumentResponseHeaders(request, new Headers()),
   });
 };
 
