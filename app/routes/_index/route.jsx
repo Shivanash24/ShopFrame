@@ -51,9 +51,14 @@ export default function App() {
                   </div>
                   <span className={styles.inputHint}>e.g: my-shop-domain.myshopify.com</span>
                 </label>
-                <button className={styles.button} type="submit">
-                  Log in to ShopFrame
-                </button>
+                <div className={styles.buttonGroup}>
+                  <button className={styles.button} type="submit">
+                    Log in
+                  </button>
+                  <button className={styles.buttonSecondary} type="submit">
+                    Install App
+                  </button>
+                </div>
               </Form>
             </div>
           )}

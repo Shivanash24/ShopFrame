@@ -200,6 +200,34 @@
   transform: translateY(0);
 }
 
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.buttonGroup > * {
+  flex: 1;
+}
+
+.buttonSecondary {
+  background: white;
+  color: var(--text-main);
+  border: 2px solid #e1e3e5;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.buttonSecondary:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
 .featuresGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
