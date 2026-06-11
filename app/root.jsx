@@ -41,6 +41,17 @@ export default function App() {
         />
         {apiKey && <meta name="shopify-api-key" content={apiKey} />}
         <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Basic check to see if the source is reachable and handle tunnel drops gracefully
+              setInterval(() => {
+                fetch(window.location.origin + '/health', { mode: 'no-cors' })
+                  .catch(() => console.error("Cloudflare tunnel is offline. Fix the tunnel to prevent chrome-error origin mismatches."));
+              }, 30000); // Check every 30 seconds
+            `,
+          }}
+        />
         <Meta />
         <Links />
       </head>
