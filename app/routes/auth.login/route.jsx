@@ -23,6 +23,8 @@ export const loader = async ({ request }) => {
 };
 
 export const action = async ({ request }) => {
+  const formData = await request.clone().formData();
+  console.log(`[OAuth] Starting login/install flow for shop: ${formData.get("shop")}`);
   const errors = loginErrorMessage(await login(request));
 
   return {

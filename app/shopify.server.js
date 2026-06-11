@@ -28,6 +28,7 @@ export {
 // Custom wrapper to fix Prisma + MongoDB issues
 class MongoDBSessionStorage extends PrismaSessionStorage {
   async storeSession(session) {
+    console.log(`[SessionStorage] Storing session for shop: ${session.shop}`);
     await this.ready;
     const data = this.sessionToRow(session);
 
@@ -105,18 +106,6 @@ const shopify = shopifyApp({
     APP_UNINSTALLED: {
       deliveryMethod: DeliveryMethod.Http,
       callbackUrl: "/webhooks/app/uninstalled",
-    },
-    CUSTOMERS_DATA_REQUEST: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/customers/data_request",
-    },
-    CUSTOMERS_REDACT: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/customers/redact",
-    },
-    SHOP_REDACT: {
-      deliveryMethod: DeliveryMethod.Http,
-      callbackUrl: "/webhooks/shop/redact",
     },
   },
   ...(process.env.SHOP_CUSTOM_DOMAIN
