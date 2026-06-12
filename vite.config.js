@@ -47,6 +47,9 @@ const allowedHosts = host === "localhost" ? [host] : "all";
 export default defineConfig({
   server: {
     allowedHosts: allowedHosts,
+    headers: {
+      "Content-Security-Policy": "frame-ancestors https://*.myshopify.com https://admin.shopify.com;",
+    },
     cors: {
       origin: true,
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
