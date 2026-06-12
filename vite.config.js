@@ -49,6 +49,7 @@ export default defineConfig({
     allowedHosts: allowedHosts,
     headers: {
       "Content-Security-Policy": "frame-ancestors https://*.myshopify.com https://admin.shopify.com;",
+      "X-Frame-Options": "ALLOWALL",
     },
     cors: {
       origin: true,
