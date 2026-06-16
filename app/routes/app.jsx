@@ -13,7 +13,9 @@ import { json } from "@remix-run/node";
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
 
-  return json({ apiKey: process.env.SHOPIFY_API_KEY || "" }, {
+  const apiKey = process.env.SHOPIFY_API_KEY || "0a5396ee55e709188d97bcbfffe50795";
+
+  return json({ apiKey }, {
     headers: addDocumentResponseHeaders(request, new Headers()),
   });
 };

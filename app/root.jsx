@@ -17,8 +17,11 @@ export const loader = async ({ request }) => {
   const url = new URL(request.url);
   const host = url.searchParams.get("host");
 
+  // Fallback to the public client ID to guarantee App Bridge initializes even if Vercel env is temporarily missing
+  const apiKey = process.env.SHOPIFY_API_KEY || "0a5396ee55e709188d97bcbfffe50795";
+
   return json({ 
-    apiKey: process.env.SHOPIFY_API_KEY || "",
+    apiKey,
     host: host || null
   }, {
     headers: addDocumentResponseHeaders(request, new Headers()),
