@@ -64,6 +64,12 @@ class MongoDBSessionStorage extends PrismaSessionStorage {
   }
 }
 
+// Ensure critical environment variables exist to prevent silent failures in production
+if (!process.env.SHOPIFY_API_KEY) console.error("CRITICAL ERROR: SHOPIFY_API_KEY environment variable is missing.");
+if (!process.env.SHOPIFY_API_SECRET) console.error("CRITICAL ERROR: SHOPIFY_API_SECRET environment variable is missing.");
+if (!process.env.SHOPIFY_APP_URL) console.error("CRITICAL ERROR: SHOPIFY_APP_URL environment variable is missing.");
+if (!process.env.SCOPES) console.error("CRITICAL ERROR: SCOPES environment variable is missing.");
+
 const shopify = shopifyApp({
   apiKey: process.env.SHOPIFY_API_KEY,
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
@@ -102,9 +108,6 @@ const shopify = shopifyApp({
       ],
     },
   },
-  ...(process.env.SHOP_CUSTOM_DOMAIN
-    ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
-    : {}),
 });
 
 export default shopify;
