@@ -75,7 +75,7 @@ const shopify = shopifyApp({
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
   apiVersion: ApiVersion.January25,
   scopes: process.env.SCOPES?.split(","),
-  appUrl: process.env.SHOPIFY_APP_URL || "",
+  appUrl: process.env.SHOPIFY_APP_URL || (process.env.NODE_ENV === "production" ? "https://shopframe.karvocrm.store" : ""),
   authPathPrefix: "/auth",
   sessionStorage: new MongoDBSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
