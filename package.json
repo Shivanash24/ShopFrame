@@ -4,7 +4,7 @@
   "scripts": {
     "build": "prisma generate && remix vite:build",
     "vercel-build": "prisma generate && NODE_ENV=production remix vite:build && cp -R build/client/* public/ || true",
-    "dev": "shopify app dev --tunnel-provider=ngrok",
+    "dev": "shopify app dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
