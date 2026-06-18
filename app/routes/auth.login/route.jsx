@@ -17,8 +17,24 @@ import { loginErrorMessage } from "./error.server";
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
-  const errors = loginErrorMessage(await login(request));
+  const url = new URL(request.url);
+  const shop = url.searchParams.get("shop");
+  
+  if (shop) {
+    // If the user lands here but already has a session, redirect them to the app.
+    // The login(request) function will automatically bounce to OAuth if the session is invalid,
+    // but if it IS valid, it will just return empty. In that case, we should manually bounce them to the app
+    // to prevent getting stuck on this page.
+    const errors = loginErrorMessage(await login(request));
+    if (!errors || Object.keys(errors).length === 0) {
+      // login(request) returned empty, meaning session is valid!
+      const redirectUrl = `/app?${url.searchParams.toString()}`;
+      throw Response.redirect(redirectUrl);
+    }
+    return { errors, polarisTranslations };
+  }
 
+  const errors = loginErrorMessage(await login(request));
   return { errors, polarisTranslations };
 };
 

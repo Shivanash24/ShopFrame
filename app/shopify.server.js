@@ -113,7 +113,18 @@ const shopify = shopifyApp({
 export default shopify;
 export const apiVersion = ApiVersion.January25;
 export const addDocumentResponseHeaders = shopify.addDocumentResponseHeaders;
-export const authenticate = shopify.authenticate;
+const originalAuthenticateAdmin = shopify.authenticate.admin;
+export const authenticate = {
+  ...shopify.authenticate,
+  admin: async (request) => {
+    try {
+      return await originalAuthenticateAdmin(request);
+    } catch (error) {
+      console.log(`[DEBUG] authenticate.admin failed for URL: ${request.url}`);
+      throw error;
+    }
+  }
+};
 export const unauthenticated = shopify.unauthenticated;
 export const login = shopify.login;
 export const registerWebhooks = shopify.registerWebhooks;
