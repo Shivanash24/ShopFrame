@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === "production") {
   hmrConfig = {
     protocol: "wss",
     host: host,
-    port: parseInt(process.env.FRONTEND_PORT) || 8002,
+    port: parseInt(process.env.FRONTEND_PORT) || parseInt(process.env.PORT) || 3000,
     clientPort: 443,
   };
 }
