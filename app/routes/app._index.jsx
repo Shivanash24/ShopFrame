@@ -265,7 +265,7 @@ export default function Dashboard() {
               </Text>
               <div style={{ marginTop: '12px' }}>
                 <Text variant="bodyLg" tone="subdued">
-                  Build a premium, high-converting storefront in minutes. Discover world-class templates, customize effortlessly, and scale your business.
+                  Build a premium, high-converting storefront in minutes. Discover world-class layout sections, customize effortlessly, and scale your business.
                 </Text>
               </div>
             </div>
@@ -282,10 +282,10 @@ export default function Dashboard() {
             ) : (
               <InlineStack gap="300" align="start">
                 <Button size="large" variant="primary" onClick={() => navigate('/app/templates')}>
-                  Browse Templates
+                  Browse Layouts
                 </Button>
                 <Button size="large" onClick={() => navigate('/app/customize')}>
-                  Customize Active Design
+                  Customize Layout Sections
                 </Button>
               </InlineStack>
             )}
@@ -296,7 +296,7 @@ export default function Dashboard() {
         <Grid>
           <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 3, lg: 3, xl: 3}}>
             <div className="stat-card">
-              <Text variant="headingSm" tone="subdued">Active Theme</Text>
+              <Text variant="headingSm" tone="subdued">Current Theme</Text>
               <div className="stat-value">None</div>
             </div>
           </Grid.Cell>
@@ -312,7 +312,7 @@ export default function Dashboard() {
           </Grid.Cell>
           <Grid.Cell columnSpan={{xs: 6, sm: 3, md: 3, lg: 3, xl: 3}}>
             <div className="stat-card">
-              <Text variant="headingSm" tone="subdued">Templates Available</Text>
+              <Text variant="headingSm" tone="subdued">Layouts Available</Text>
               <div className="stat-value">10+</div>
             </div>
           </Grid.Cell>
@@ -329,11 +329,11 @@ export default function Dashboard() {
           <Layout.Section>
             <BlockStack gap="600">
               
-              {/* ACTIVE DESIGN */}
+              {/* ACTIVE LAYOUT */}
               <div className="premium-card">
                 <BlockStack gap="400">
                   <InlineStack align="space-between" blockAlign="center">
-                    <Text as="h2" variant="headingLg">Active Design</Text>
+                    <Text as="h2" variant="headingLg">Homepage Layout</Text>
                     <Badge tone="success">Live</Badge>
                   </InlineStack>
                   
@@ -356,17 +356,17 @@ export default function Dashboard() {
                     <Grid.Cell columnSpan={{xs: 12, sm: 7, md: 7, lg: 7, xl: 7}}>
                       <BlockStack gap="300">
                         <div>
-                          <Text as="h3" variant="headingXl">No active template</Text>
+                          <Text as="h3" variant="headingXl">No layout added</Text>
                           <div style={{ marginTop: '8px' }}>
                             <Text variant="bodyLg" tone="subdued">
-                              You haven't applied a ShopFrame premium template to your live storefront yet. Choose a template to get started.
+                              You haven't added a ShopFrame layout section to your current theme yet. Choose a layout to get started.
                             </Text>
                           </div>
                         </div>
                         <div style={{ marginTop: '16px' }}>
                           <InlineStack gap="300">
                             <Button size="large" variant="primary" onClick={() => navigate('/app/templates')} icon={ThemeStoreIcon}>
-                              Browse Templates
+                              Browse Layouts
                             </Button>
                             <Button size="large" onClick={() => navigate('/app/customize')} icon={ViewIcon}>
                               Live Preview
@@ -384,7 +384,7 @@ export default function Dashboard() {
                 <BlockStack gap="400">
                   <InlineStack align="space-between" blockAlign="center">
                     <Text as="h2" variant="headingLg">Recommended Categories</Text>
-                    <Button variant="plain" onClick={() => navigate('/app/templates')}>View all templates</Button>
+                    <Button variant="plain" onClick={() => navigate('/app/templates')}>View all layouts</Button>
                   </InlineStack>
                   <Grid>
                     {['Jewellery', 'Fashion', 'Footwear', 'Beauty'].map(category => (
@@ -429,7 +429,7 @@ export default function Dashboard() {
                         <div className="action-icon-wrapper" style={{ color: '#8e2de2' }}>
                           <Icon source={ThemeStoreIcon} />
                         </div>
-                        <Text variant="headingSm">Templates</Text>
+                        <Text variant="headingSm">Layouts</Text>
                       </div>
                     </Grid.Cell>
                     <Grid.Cell columnSpan={{xs: 6, sm: 6, md: 6, lg: 6, xl: 6}}>

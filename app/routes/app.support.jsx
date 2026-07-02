@@ -21,7 +21,7 @@ export default function SupportPage() {
             <Card>
               <BlockStack gap="400">
                 <Text variant="headingLg" as="h2">How can we help?</Text>
-                <Text as="p">Have a question about a template or need help customizing? Send us a message.</Text>
+                <Text as="p">Have a question about a layout section or need help customizing? Send us a message.</Text>
                 
                 <FormLayout>
                   <TextField label="Subject" autoComplete="off" />
@@ -35,8 +35,8 @@ export default function SupportPage() {
               <BlockStack gap="400">
                 <Text variant="headingMd" as="h3">Frequently Asked Questions</Text>
                 <BlockStack gap="200">
-                  <Text fontWeight="bold" as="p">How do I apply a template?</Text>
-                  <Text as="p">Go to the Templates page, select a template, and click "Apply". This will sync the design to your active theme.</Text>
+                  <Text fontWeight="bold" as="p">How do I add a layout section?</Text>
+                  <Text as="p">Go to the Layouts page, select a layout, and click "Add Layout Sections". This will add the new sections to your current store theme.</Text>
                   
                   <Text fontWeight="bold" as="p">Can I change colors and fonts?</Text>
                   <Text as="p">Yes! The Customize page allows you to edit branding, text, and reorder sections.</Text>

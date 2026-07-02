@@ -227,8 +227,7 @@ export default function PricingPage() {
       const tierName = accessDeniedTier.replace("PLAN_", "");
       return (
         <Banner tone="warning" title={`${tierName} Plan Required`}>
-          That template requires a {tierName} subscription or higher. Upgrade
-          below to unlock it.
+          That layout requires a {tierName} subscription or higher. Upgrade today to access premium sections and boost your conversions!
         </Banner>
       );
     }
@@ -297,8 +296,8 @@ export default function PricingPage() {
         )}
 
         <Text variant="bodyLg" as="p" alignment="center">
-          Unlock premium layouts, advanced sections, and a richer visual
-          experience. Free templates are always included with every plan.
+          Experience the power of ShopFrame premium layout sections and start elevating your store's
+          experience. Free layouts are always included with every plan.
         </Text>
 
         <Grid>
@@ -375,11 +374,13 @@ export default function PricingPage() {
             <Text variant="headingSm" as="h3">
               ✅ Free plan is always available
             </Text>
-            <Text variant="bodySm" tone="subdued">
-              Free templates remain accessible regardless of your subscription
-              status. Upgrading adds access to premium templates; it never
-              removes free content.
-            </Text>
+            <BlockStack gap="200">
+              <Text as="p">
+              Free layouts remain accessible regardless of your subscription
+              status. Upgrading adds access to premium layouts; it never
+              removes access to free ones.
+              </Text>
+            </BlockStack>
           </BlockStack>
         </Card>
       </BlockStack>

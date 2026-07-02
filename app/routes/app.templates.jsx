@@ -67,7 +67,7 @@ export default function TemplatesPage() {
 
   const getUpgradeButtonText = (tier) => {
     if (tier === 'PLAN_BASIC') return "Upgrade to Basic";
-    if (tier === 'PLAN_PRO') return "Unlock Pro Templates";
+    if (tier === 'PLAN_PRO') return "Unlock Pro Layouts";
     if (tier === 'PLAN_PLATINUM') return "Get Platinum Access";
     return "Upgrade Plan";
   };
@@ -216,7 +216,7 @@ export default function TemplatesPage() {
   `;
 
   return (
-    <Page title="Homepage Templates">
+    <Page title="Homepage Layouts">
       <style>{customStyles}</style>
       
       <BlockStack gap="500">
@@ -269,7 +269,7 @@ export default function TemplatesPage() {
                           <Icon source={LockIcon} tone="base" />
                         </div>
                         <span style={{ color: 'white', fontWeight: '600', fontSize: '14px', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                          Premium Design
+                          Premium Layout
                         </span>
                       </div>
                     )}

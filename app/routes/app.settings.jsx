@@ -49,9 +49,9 @@ export default function SettingsPage() {
             <Card title="Danger Zone">
               <BlockStack gap="400">
                 <Text variant="headingMd" as="h2" tone="critical">Reset Customizations</Text>
-                <Text as="p">This will remove all ShopFrame templates from your live theme.</Text>
+                <Text as="p">This will remove all ShopFrame layout sections from your store theme.</Text>
                 <InlineStack>
-                  <Button tone="critical">Remove Templates</Button>
+                  <Button tone="critical">Remove Layout Sections</Button>
                 </InlineStack>
               </BlockStack>
             </Card>

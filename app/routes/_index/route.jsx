@@ -29,7 +29,7 @@ export default function App() {
             Welcome to <span className={styles.highlight}>ShopFrame</span>
           </h1>
           <p className={styles.text}>
-            Build a premium, high-converting storefront in minutes. Discover world-class templates, customize effortlessly, and scale your business.
+            Build a premium, high-converting storefront in minutes. Discover world-class layout sections, customize effortlessly, and scale your business.
           </p>
 
           {showForm && (
@@ -68,8 +68,8 @@ export default function App() {
               <div className={styles.featureIcon}>
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               </div>
-              <div className={styles.featureTitle}>Premium Templates</div>
-              <div className={styles.featureDesc}>Access a library of world-class, high-converting templates built for modern commerce.</div>
+              <div className={styles.featureTitle}>Premium Layouts</div>
+              <div className={styles.featureDesc}>Access a library of world-class, high-converting layout sections built for modern commerce.</div>
             </div>
             
             <div className={styles.featureCard}>

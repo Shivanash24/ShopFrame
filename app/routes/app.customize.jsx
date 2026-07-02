@@ -100,7 +100,7 @@ export const action = async ({ request }) => {
     });
     
     if (intent === "apply") {
-      return { success: true, message: "Template and design applied to your store!" };
+      return { success: true, message: "Homepage layout sections added to your store theme!" };
     }
     return { success: true, message: "Draft saved successfully." };
   }
@@ -189,8 +189,8 @@ export default function CustomizePage() {
   return (
     <Page 
       title={`Customize: ${template.name}`} 
-      backAction={{content: 'Templates', onAction: () => navigate('/app/templates')}}
-      primaryAction={{content: 'Apply Design', onAction: handleApply}}
+      backAction={{content: 'Layouts', onAction: () => navigate('/app/templates')}}
+      primaryAction={{content: 'Add Layout Sections', onAction: handleApply}}
       secondaryActions={[{content: 'Save Draft', onAction: handleSave}]}
     >
       {actionData?.success && (

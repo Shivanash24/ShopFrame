@@ -88,7 +88,7 @@ export default function OnboardingPage() {
               {step === 1 && (
                 <BlockStack gap="400">
                   <Text variant="headingLg" as="h2">Let's set up your store</Text>
-                  <Text as="p">Tell us a bit about your brand so we can recommend the perfect templates.</Text>
+                  <Text as="p">Tell us a bit about your brand so we can recommend the perfect layouts.</Text>
                   
                   <FormLayout>
                     <TextField label="Brand Name" value={name} onChange={setName} autoComplete="off" />
