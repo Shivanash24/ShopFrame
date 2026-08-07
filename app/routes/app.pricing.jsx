@@ -305,6 +305,9 @@ export default function PricingPage() {
             const isCurrent = userPlan === plan.id;
             const buttonLabel = getPlanButtonLabel(plan.id, userPlan);
             const isPaidPlan = plan.id !== "FREE";
+            const isThisPlanSubmitting =
+              navigation.state === "submitting" &&
+              navigation.formData?.get("plan") === plan.id;
 
             return (
               <Grid.Cell
@@ -347,7 +350,7 @@ export default function PricingPage() {
                       </List>
                     </div>
 
-                    {isSubmitting ? (
+                    {isThisPlanSubmitting ? (
                       <InlineStack align="center" gap="200">
                         <Spinner size="small" />
                         <Text>Processing...</Text>
